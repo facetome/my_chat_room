@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8FF">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <ImageView
+            android:id="@+id/roaster_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_login"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/roaster_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#323232"
+            android:layout_toRightOf="@id/roaster_icon"
+            android:layout_alignTop="@id/roaster_icon" />
+
+        <TextView
+            android:id="@+id/roaster_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="#808080"
+            android:layout_marginTop="2dp"
+            android:layout_toRightOf="@id/roaster_icon"
+            android:layout_below="@id/roaster_name"/>
+    </RelativeLayout>
+</LinearLayout>
