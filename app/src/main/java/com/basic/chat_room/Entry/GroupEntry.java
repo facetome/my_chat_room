@@ -5,7 +5,9 @@ package com.basic.chat_room.Entry;
  */
 public class GroupEntry {
     private String mGroupName;
+    //分组总人数
     private int mTotalNum;
+    //在线总人数
     private int mOnlineNum;
 
     public String getGroupName() {

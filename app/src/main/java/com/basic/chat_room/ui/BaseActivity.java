@@ -1,10 +1,8 @@
 package com.basic.chat_room.ui;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 
 import com.basic.chat_room.database.DBHelper;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -28,10 +26,10 @@ public class BaseActivity extends FragmentActivity {
         }
     }
 
-    public DBHelper getDBHelper(){
-          if(mHelper == null){
-               mHelper = OpenHelperManager.getHelper(this, DBHelper.class);
-          }
+    public DBHelper getDBHelper() {
+        if (mHelper == null) {
+            mHelper = OpenHelperManager.getHelper(this, DBHelper.class);
+        }
         return mHelper;
     }
 
@@ -62,7 +60,7 @@ public class BaseActivity extends FragmentActivity {
         }
     }
 
-    public void reLogin(){
+    public void reLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

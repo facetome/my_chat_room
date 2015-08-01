@@ -1,5 +1,6 @@
 package com.basic.chat_room.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTabHost;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TabHost.TabSpec;
 import android.widget.Toast;
 
 import com.basic.chat_room.R;
+import com.basic.chat_room.service.ChatService;
 import com.basic.chat_room.utils.XmppUtil;
 import com.basic.chat_room.view.LocalActionBar;
 import com.basic.chat_room.view.TabContent;
@@ -25,7 +27,7 @@ public class MainActivity extends BaseActivity {
     private OnTabChangeListener mChangeListener = new OnTabChangeListener() {
         @Override
         public void onTabChanged(String tabId) {
-           mActionBar.setTitle(tabId, LocalActionBar.MIDDLE_TITLE);
+            mActionBar.setTitle(tabId, LocalActionBar.MIDDLE_TITLE);
         }
     };
 
@@ -35,6 +37,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main);
         initActionBar();
         initFragment();
+        startService();
     }
 
     private void initFragment() {
@@ -77,6 +80,7 @@ public class MainActivity extends BaseActivity {
 //        在onDestory()中进行断开连接没有用！！
 //        disConnection();
         super.onDestroy();
+        stopService();
 
     }
 
@@ -92,7 +96,17 @@ public class MainActivity extends BaseActivity {
         mFirstTime = exitTime;
     }
 
-    private void disConnection(){
+    private void disConnection() {
         XmppUtil.dissConnection();
+    }
+
+    private void startService() {
+        Intent intent = new Intent(this, ChatService.class);
+        startService(intent);
+    }
+
+    private void stopService() {
+        Intent intent = new Intent(this, ChatService.class);
+        stopService(intent);
     }
 }

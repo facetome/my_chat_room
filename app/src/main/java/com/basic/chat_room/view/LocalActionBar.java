@@ -34,12 +34,12 @@ public class LocalActionBar {
     }
 
     public void show(Context context) {
-        mActionBar =((Activity)context).getActionBar();
+        mActionBar = ((Activity) context).getActionBar();
         mActionBar.setDisplayShowCustomEnabled(true);  //是否可以使用自定义布局
-        mActionBar.setDisplayShowHomeEnabled(false);//显示程序图标
+        mActionBar.setDisplayShowHomeEnabled(false); //显示程序图标
         mActionBar.setDisplayShowTitleEnabled(false); //是否显示系统的title
         mActionBar.setDisplayUseLogoEnabled(false);
-       //setDisplayShowTitleEnabled和setDisplayShowHomeEnabled共同起作用
+        //setDisplayShowTitleEnabled和setDisplayShowHomeEnabled共同起作用
 //        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM
 //                | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         View view = LayoutInflater.from(context).inflate(R.layout.local_actionbar, null);
@@ -83,8 +83,8 @@ public class LocalActionBar {
         }
     }
 
-    public void setRightTitleOnClickListener(OnClickListener listener){
-          mRightTitle.setOnClickListener(listener);
+    public void setRightTitleOnClickListener(OnClickListener listener) {
+        mRightTitle.setOnClickListener(listener);
     }
 
 }

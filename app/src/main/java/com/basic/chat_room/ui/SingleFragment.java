@@ -160,7 +160,7 @@ public class SingleFragment extends Fragment {
             ((TextView) convertView.findViewById(R.id.group_title)).setText(mGroup
                     .get(groupPosition).getGroupName());
             GroupEntry entry = mGroup.get(groupPosition);
-            ((TextView)convertView.findViewById(R.id.presence_num)).setText(getString(R.string
+            ((TextView) convertView.findViewById(R.id.presence_num)).setText(getString(R.string
                     .lable_separator_slash, entry.getOnlineNum(), entry.getTotalNum()));
 
             return convertView;

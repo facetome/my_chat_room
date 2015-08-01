@@ -13,8 +13,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.basic.chat_room.R;
 import com.basic.chat_room.Entry.User;
+import com.basic.chat_room.R;
 import com.basic.chat_room.utils.Uitity;
 import com.basic.chat_room.utils.XmppUtil;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -39,12 +39,12 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
     private CheckBox mAutoLogin;
     private static final int CONNECT_SUCCESS = 1;
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int code = msg.what;
-            switch (code){
+            switch (code) {
                 case CONNECT_SUCCESS:
                     initData();
                     break;
@@ -57,7 +57,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-    //    getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
+        //    getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         Uitity.showProgressDialog(this, false);
@@ -65,13 +65,13 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
             @Override
             public void run() {
                 mConnection = XmppUtil.getConnection(LoginActivity.this);
-                if (!mConnection.isConnected()){
+                if (!mConnection.isConnected()) {
                     LoginActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                         Toast.makeText(LoginActivity.this, "连接错误，稍后重试.",
-                                 Toast.LENGTH_SHORT).show();
-                         Uitity.dimissProgressDialog(LoginActivity.this);
+                            Toast.makeText(LoginActivity.this, "连接错误，稍后重试.",
+                                    Toast.LENGTH_SHORT).show();
+                            Uitity.dimissProgressDialog(LoginActivity.this);
                         }
                     });
                     finish();
@@ -103,8 +103,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         Intent intent = null;
         switch (id) {
             case R.id.login_btn:
-                if(login()){
-                   intent = new Intent(this, MainActivity.class);
+                if (login()) {
+                    intent = new Intent(this, MainActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -134,15 +134,15 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                 user.setUserName(username);
                 user.setAutoLogin(isAutoLogin);
                 user.setRemeberPassword(isRemberPassword);
-                user.setLastCreateTime(System.currentTimeMillis());//按时间排序
-                getDBHelper().getUserDao().createOrUpdate(user);//插入或者更新数据库
+                user.setLastCreateTime(System.currentTimeMillis()); //按时间排序
+                getDBHelper().getUserDao().createOrUpdate(user); //插入或者更新数据库
                 return true;
             } catch (XMPPException e) {
                 e.printStackTrace();
                 String error = e.getMessage();
-                if(error.contains(AUTHOR_ERROR_CODE)){
-                   Toast.makeText(this, getString(R.string.message_user_not_exits),
-                           Toast.LENGTH_SHORT).show();
+                if (error.contains(AUTHOR_ERROR_CODE)) {
+                    Toast.makeText(this, getString(R.string.message_user_not_exits),
+                            Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
@@ -155,7 +155,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 
     private void loginWithXmpp(String username, String password) throws XMPPException {
-        if(mConnection != null){
+        if (mConnection != null) {
             mConnection.login(username, password);
             //此时应该代表的是登陆成功,如果么有成功，将会抛出异常
             //登陆成功后发送在线状态
@@ -169,6 +169,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         try {
             QueryBuilder<User, Integer> builder = getDBHelper().getUserDao().queryBuilder();
             builder.orderByRaw(User.LAST_TIME + " DESC");
+            Toast.makeText(this, builder.query().size()+ "", Toast.LENGTH_SHORT).show();
             User user = builder.queryForFirst();
             if (user != null) {
                 mUsername.setText(user.getUserName());
@@ -178,11 +179,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                     mPassword.setText(user.getPassword());
                 }
                 if (user.isAutoLogin()) {
-                   if(login()){
-                      Intent intent = new Intent(this, MainActivity.class);
-                       startActivity(intent);
-                       finish();
-                   }
+                    if (login()) {
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
 
             }
