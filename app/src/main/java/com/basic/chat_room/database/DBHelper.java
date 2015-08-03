@@ -37,7 +37,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
         try {
             Log.d(TAG, DBHelper.class.getName() + "  onCreate");
             TableUtils.createTable(connectionSource, User.class);
-            TableUtils.clearTable(connectionSource, SingleComunicationDetailEntry.class);
+            TableUtils.createTable(connectionSource, SingleComunicationDetailEntry.class);
 
         } catch (SQLException e) {
             e.printStackTrace();

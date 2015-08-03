@@ -7,6 +7,11 @@ public class Contact {
     private boolean mIsAvaliable;
     private String mName;
 
+    /**
+     * user jid.
+     */
+    private String mUserId;
+
     public String getName() {
         return mName;
     }
@@ -21,5 +26,13 @@ public class Contact {
 
     public void setIsAvaliable(boolean isAvaliable) {
         mIsAvaliable = isAvaliable;
+    }
+
+    public String getUserId() {
+        return mUserId;
+    }
+
+    public void setUserId(String userId) {
+        mUserId = userId;
     }
 }

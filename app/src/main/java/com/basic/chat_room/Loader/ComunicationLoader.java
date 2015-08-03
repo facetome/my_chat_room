@@ -42,12 +42,36 @@ public class ComunicationLoader extends AsyncTaskLoader<List<SingleComunicationD
                     .eq(SingleComunicationDetailEntry.COLUMN_USER_NAME, userName)
                     .and()
                     .eq(SingleComunicationDetailEntry.COLUMN_CONTACT_NAME, mComunicationId);
-            return queryBuilder.limit(mBlockSize).orderByRaw(SingleComunicationDetailEntry
-                    .COLUMN_TIME_STAMP + "").query();
+            return queryBuilder.orderByRaw(SingleComunicationDetailEntry
+                            .COLUMN_TIME_STAMP + " DESC").limit(mBlockSize).query();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        stopLoading();
+    }
+
+    @Override
+    protected void onStopLoading() {
+        super.onStopLoading();
+        cancelLoad();
+    }
+
+    @Override
+    protected void onStartLoading() {
+        super.onStartLoading();
+        onForceLoad();
+    }
+
+    @Override
+    public void deliverResult(List<SingleComunicationDetailEntry> data) {
+        super.deliverResult(data);
+    }
 }
+

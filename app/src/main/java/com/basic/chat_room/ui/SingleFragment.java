@@ -1,9 +1,11 @@
 package com.basic.chat_room.ui;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +14,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.basic.chat_room.Entry.Contact;
 import com.basic.chat_room.Entry.GroupEntry;
@@ -35,6 +39,7 @@ import java.util.List;
 public class SingleFragment extends Fragment {
     public static final int LABLE_NAME = R.string.label_single_point;
     public static final int LABEL_ICON = R.drawable.single_selector;
+    private static final String TAG = "SingleFragment";
 
     private ExpandableListView mListView;
     private ImageView mEmptyIcon;
@@ -50,12 +55,19 @@ public class SingleFragment extends Fragment {
         mListView.setCacheColorHint(Color.TRANSPARENT);
         mAdapter = new BaseExpandAdapter();
         mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
+        mListView.setOnChildClickListener(new OnChildClickListener() {
+           @Override
+           public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+               String communicationId = mRosterEntrySparse.get(groupPosition)
+                         .get(childPosition)
+                         .getName();
+               Log.d(TAG, "key:contact_name:" + communicationId);
+               Intent intent = new Intent(getActivity(), BaseComunicationActivity.class);
+               intent.putExtra(BaseComunicationActivity.KEY_COMUNICATION_ID, communicationId);
+               getActivity().startActivity(intent);
+               return true;
+           }
+       });
         return view;
     }
 
@@ -87,6 +99,7 @@ public class SingleFragment extends Fragment {
                             RosterEntry entry = iterator.next();
                             Contact contact = new Contact();
                             contact.setName(entry.getName());
+                            contact.setUserId(entry.getUser());
                             boolean isAvailable = roster.getPresence(entry.getName()).isAvailable();
                             availableNum = isAvailable == true ? ++availableNum : availableNum;
                             contact.setIsAvaliable(isAvailable);

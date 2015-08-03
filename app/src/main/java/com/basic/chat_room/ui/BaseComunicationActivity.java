@@ -5,6 +5,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,6 +30,9 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -41,15 +45,18 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
     //在数据库中为了保持数据的唯一性，所以查找的条件为：用户名+comunication_id的方式进行查找
     public static final String KEY_COMUNICATION_ID = "comunication_id";
     public static final String COMUNICATION_COUNT = "comunication_count";
+    private static final String TAG = "BaseComunicationActivity";
     private LoaderManager mLoaderManger;
     private static final int LOAER_ID = 1;
     private static final int SAVER_ID = 2;
     private ComunicationAdapter mAdapter;
-    private List<SingleComunicationDetailEntry> mData;
+    private List<SingleComunicationDetailEntry> mData = new ArrayList<>();
     private String mComunicationId;
     private static final long COMUNICATION_PAGE_SIZE = 10;
-    private SingleComunicationDetailEntry mEntry = new SingleComunicationDetailEntry();
+    private SingleComunicationDetailEntry mEntry;
     private Chat mContactChat;
+    //判断是否下来刷新
+    private boolean mIsPullDown = false;
 
     private EditText mInput;
     private Button mSendMsg;
@@ -108,8 +115,6 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
     private void initActionBar() {
         LocalActionBar actionBar = LocalActionBar.getLocalBar(this);
         actionBar.setTitle(mComunicationId, LocalActionBar.MIDDLE_TITLE);
-        actionBar.show(this);
-
     }
 
 
@@ -125,6 +130,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mPullListView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> pullToRefreshBase) {
+               mIsPullDown = true;
                 //下拉刷新
                 mLoaderManger.restartLoader(LOAER_ID, getLoadBundle(), BaseComunicationActivity.this);
             }
@@ -145,6 +151,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         String message = mInput.getEditableText().toString();
         if (!TextUtils.isEmpty(message)) {
             sendMessage(message);
+            mInput.setText("");
         } else {
             Toast.makeText(this, getString(R.string.msg_no_message), Toast.LENGTH_SHORT).show();
         }
@@ -152,8 +159,9 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
     //发送消息
     private void sendMessage(String message) {
+        mEntry = new SingleComunicationDetailEntry();
         mEntry.setContact(mComunicationId);
-        mEntry.setDataPosition(SingleComunicationDetailEntry.DATA_LEFT);
+        mEntry.setDataPosition(SingleComunicationDetailEntry.DATA_RIGHT);
         mEntry.setMessage(message);
         mEntry.setTimeStamp(System.currentTimeMillis());
         mEntry.setUserName(PreferenceUtil.getLoginUsername(this));
@@ -169,11 +177,25 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
     }
 
     private void dispatchData(List<SingleComunicationDetailEntry> data) {
-        if (data != null && data.size() == 0) {
-            Toast.makeText(this, getString(R.string.msg_no_more_data), Toast.LENGTH_SHORT).show();
+        if (mPullListView.isRefreshing()) {
+            mPullListView.onRefreshComplete();
+        }
+        // todo
+        if (data != null && data.get(data.size() - 1).getId() == 1) {
+            if (mIsPullDown) {
+                Toast.makeText(this, getString(R.string.msg_no_more_data), Toast.LENGTH_SHORT).show();
+                mIsPullDown = false;
+            }
         } else {
-            if (mPullListView.isRefreshing()){
-                 mPullListView.onRefreshComplete();
+            if (data != null) {
+                mData = data;
+                //对list进行排序
+                Collections.sort(mData, new Comparator<SingleComunicationDetailEntry>() {
+                    @Override
+                    public int compare(SingleComunicationDetailEntry lhs, SingleComunicationDetailEntry rhs) {
+                        return new Long(lhs.getTimeStamp()).compareTo(new Long(rhs.getTimeStamp()));
+                    }
+                });
             }
             mAdapter.onRefresh(mData);
         }

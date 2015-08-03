@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.basic.chat_room.Entry.User;
 import com.basic.chat_room.R;
+import com.basic.chat_room.utils.DBHelperUtils;
 import com.basic.chat_room.utils.Uitity;
 import com.basic.chat_room.utils.XmppUtil;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -135,7 +136,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                 user.setAutoLogin(isAutoLogin);
                 user.setRemeberPassword(isRemberPassword);
                 user.setLastCreateTime(System.currentTimeMillis()); //按时间排序
-                getDBHelper().getUserDao().createOrUpdate(user); //插入或者更新数据库
+                DBHelperUtils.createOrUpdateUser(getDBHelper().getUserDao(), user); //插入或者更新数据库
                 return true;
             } catch (XMPPException e) {
                 e.printStackTrace();
@@ -169,7 +170,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         try {
             QueryBuilder<User, Integer> builder = getDBHelper().getUserDao().queryBuilder();
             builder.orderByRaw(User.LAST_TIME + " DESC");
-            Toast.makeText(this, builder.query().size()+ "", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, builder.query().size()+"", Toast.LENGTH_SHORT).show();
             User user = builder.queryForFirst();
             if (user != null) {
                 mUsername.setText(user.getUserName());

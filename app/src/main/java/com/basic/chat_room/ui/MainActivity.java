@@ -79,8 +79,9 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
 //        在onDestory()中进行断开连接没有用！！
 //        disConnection();
-        super.onDestroy();
         stopService();
+        super.onDestroy();
+
 
     }
 

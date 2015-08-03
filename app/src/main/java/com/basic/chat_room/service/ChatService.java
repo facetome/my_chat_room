@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.basic.chat_room.Entry.SingleComunicationDetailEntry;
 import com.basic.chat_room.database.DBHelper;
@@ -14,6 +15,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
 
 /**
@@ -23,6 +25,8 @@ public class ChatService extends Service {
 
     private DBHelper mHelper;
     private SingleChatMangerListener mChatListener;
+    private XMPPConnection mConnection;
+    private static final String TAG = "ChatService";
 
     @Nullable
     @Override
@@ -37,12 +41,13 @@ public class ChatService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.d(TAG, "service start");
         if (mHelper == null) {
             mHelper = OpenHelperManager.getHelper(this, DBHelper.class);
         }
         mChatListener = new SingleChatMangerListener();
-        XmppUtil.getConnection(this).getChatManager().addChatListener(mChatListener);
+        mConnection = XmppUtil.getConnection(this);
+        mConnection.getChatManager().addChatListener(mChatListener);
         return Service.START_STICKY;
     }
 
@@ -51,9 +56,11 @@ public class ChatService extends Service {
         //创建单人聊天室
         @Override
         public void chatCreated(Chat chat, boolean b) {
+            Log.d(TAG, "char create");
             chat.addMessageListener(new MessageListener() {
                 @Override
                 public void processMessage(Chat chat, Message message) {
+                    Log.d(TAG, "message create");
                     String contactName = message.getFrom();
                     String body = message.getBody();
                     SingleComunicationDetailEntry entry = new SingleComunicationDetailEntry();
@@ -70,7 +77,9 @@ public class ChatService extends Service {
 
     @Override
     public void onDestroy() {
-        XmppUtil.getConnection(this).getChatManager().removeChatListener(mChatListener);
+        if (mConnection != null) {
+            mConnection.getChatManager().removeChatListener(mChatListener);
+        }
         OpenHelperManager.releaseHelper();
         super.onDestroy();
 
