@@ -5,7 +5,6 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,10 +25,13 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -92,7 +94,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         if (loader.getId() == LOAER_ID) {
             dispatchData((List<SingleComunicationDetailEntry>) data);
         } else if (loader.getId() == SAVER_ID) {
-            mLoaderManger.restartLoader(LOAER_ID, getLoadBundle(), this);
+            mLoaderManger.restartLoader(LOAER_ID, getSendLoadBundle(), this);
         }
 
     }
@@ -106,7 +108,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mComunicationId = getIntent().getStringExtra(KEY_COMUNICATION_ID);
         mLoaderManger = getLoaderManager();
 
-        mLoaderManger.initLoader(LOAER_ID, getLoadBundle(), this);
+        mLoaderManger.initLoader(LOAER_ID, getPullLoadBundle(), this);
 
         // 初始化聊天室
         mContactChat = Uitity.getFriendChat(this, mComunicationId);
@@ -132,7 +134,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
             public void onPullDownToRefresh(PullToRefreshBase<ListView> pullToRefreshBase) {
                mIsPullDown = true;
                 //下拉刷新
-                mLoaderManger.restartLoader(LOAER_ID, getLoadBundle(), BaseComunicationActivity.this);
+                mLoaderManger.restartLoader(LOAER_ID, getPullLoadBundle(), BaseComunicationActivity.this);
             }
 
             @Override
@@ -181,7 +183,8 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
             mPullListView.onRefreshComplete();
         }
         // todo
-        if (data != null && data.get(data.size() - 1).getId() == 1) {
+        if (data != null && data.size() >=1 && data.get(data.size() - 1).getId() ==
+                getInformationMinId()) {
             if (mIsPullDown) {
                 Toast.makeText(this, getString(R.string.msg_no_more_data), Toast.LENGTH_SHORT).show();
                 mIsPullDown = false;
@@ -202,13 +205,20 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
     }
 
-    private Bundle getLoadBundle() {
+    private Bundle getPullLoadBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_COMUNICATION_ID, mComunicationId);
         bundle.putLong(COMUNICATION_COUNT, COMUNICATION_PAGE_SIZE + mData.size());
         return bundle;
-
     }
+
+    private Bundle getSendLoadBundle(){
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_COMUNICATION_ID, mComunicationId);
+        bundle.putLong(COMUNICATION_COUNT, COMUNICATION_PAGE_SIZE );
+        return bundle;
+    }
+
 
     //封装保存数据加载器.
     //是否删除以前的数据
@@ -216,6 +226,24 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         Bundle bundle = new Bundle();
         bundle.putBoolean(ComunicationSaver.DELETE_OLD_DATA, isDelete);
         return bundle;
+    }
+
+    private long getInformationMinId() {
+        QueryBuilder<SingleComunicationDetailEntry, Integer> builder = getDBHelper()
+                .getSingleComunicationDetailDao().queryBuilder();
+        try {
+            builder.where()
+                    .eq(SingleComunicationDetailEntry.COLUMN_CONTACT_NAME, mComunicationId)
+                    .and()
+                    .eq(SingleComunicationDetailEntry.COLUMN_USER_NAME, PreferenceUtil.getLoginUsername(this));
+            SingleComunicationDetailEntry entry = builder.queryForFirst();
+            if (entry != null) {
+                return entry.getId();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+      return 0L;
     }
 
 
