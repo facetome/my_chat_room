@@ -36,6 +36,7 @@ public class ComunicationLoader extends AsyncTaskLoader<List<SingleComunicationD
     @Override
     public List<SingleComunicationDetailEntry> loadInBackground() {
         String userName = PreferenceUtil.getLoginUsername(mContext);
+
         QueryBuilder queryBuilder = mHelper.getSingleComunicationDetailDao().queryBuilder();
         try {
             queryBuilder.where()

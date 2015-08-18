@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.basic.chat_room.Entry.User;
 import com.basic.chat_room.R;
 import com.basic.chat_room.utils.DBHelperUtils;
+import com.basic.chat_room.utils.PreferenceUtil;
 import com.basic.chat_room.utils.Uitity;
 import com.basic.chat_room.utils.XmppUtil;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -137,7 +138,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
                 user.setRemeberPassword(isRemberPassword);
                 user.setLastCreateTime(System.currentTimeMillis()); //按时间排序
                 DBHelperUtils.createOrUpdateUser(getDBHelper().getUserDao(), user); //插入或者更新数据库
+                PreferenceUtil.saveLoginInfo(this, username, password);
                 return true;
+
             } catch (XMPPException e) {
                 e.printStackTrace();
                 String error = e.getMessage();

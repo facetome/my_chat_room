@@ -126,7 +126,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mLoaderManger.initLoader(LOAER_ID, getPullLoadBundle(), this);
 
         // 初始化聊天室
-     //   mContactChat = Uitity.getFriendChat(this, mComunicationId);
+        mContactChat = Uitity.getFriendChat(this, mComunicationId);
     }
 
     private void initActionBar() {
@@ -212,25 +212,25 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
             mPullListView.onRefreshComplete();
         }
         // todo
-        if (data != null && data.size() >=1 && data.get(data.size() - 1).getId() ==
+        if (data != null && data.size() >= 1 && data.get(data.size() - 1).getId() ==
                 getInformationMinId()) {
             if (mIsPullDown) {
                 Toast.makeText(this, getString(R.string.msg_no_more_data), Toast.LENGTH_SHORT).show();
                 mIsPullDown = false;
             }
-        } else {
-            if (data != null) {
-                mData = data;
-                //对list进行排序
-                Collections.sort(mData, new Comparator<SingleComunicationDetailEntry>() {
-                    @Override
-                    public int compare(SingleComunicationDetailEntry lhs, SingleComunicationDetailEntry rhs) {
-                        return new Long(lhs.getTimeStamp()).compareTo(new Long(rhs.getTimeStamp()));
-                    }
-                });
-            }
-            mAdapter.onRefresh(mData);
         }
+        if (data != null) {
+            mData = data;
+            //对list进行排序
+            Collections.sort(mData, new Comparator<SingleComunicationDetailEntry>() {
+                @Override
+                public int compare(SingleComunicationDetailEntry lhs, SingleComunicationDetailEntry rhs) {
+                    return new Long(lhs.getTimeStamp()).compareTo(new Long(rhs.getTimeStamp()));
+                }
+            });
+        }
+        mAdapter.onRefresh(mData);
+
 
     }
 
@@ -312,11 +312,16 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
     @Override
     public void onBackPressed() {
-        if (mGridView.isShowing()) {
-            mGridView.dismiss();
-        } else{
+        if (mGridView != null) {
+            if (mGridView.isShowing()) {
+                mGridView.dismiss();
+            } else {
+                super.onBackPressed();
+            }
+        } else {
             super.onBackPressed();
         }
+
 
     }
 }

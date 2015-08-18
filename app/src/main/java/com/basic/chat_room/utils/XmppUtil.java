@@ -10,7 +10,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
 public class XmppUtil {
-    private static final String SERVER_IP = "192.168.0.6";
+    private static final String SERVER_IP = "192.168.1.5";
     private static final int SERVER_PORT = 5222;
     private static final String TAG = XmppUtil.class.getSimpleName();
     private static Context sContext;
