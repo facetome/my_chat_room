@@ -197,14 +197,14 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mEntry.setTimeStamp(System.currentTimeMillis());
         mEntry.setUserName(PreferenceUtil.getLoginUsername(this));
         mLoaderManger.restartLoader(SAVER_ID, new Bundle(), this);
-//        if (mContactChat != null) {
-//            try {
-//                mContactChat.sendMessage(message);
-//            } catch (XMPPException e) {
-//                e.printStackTrace();
-//                Toast.makeText(this, getString(R.string.msg_send_message_fail), Toast.LENGTH_SHORT).show();
-//            }
-//        }
+        if (mContactChat != null) {
+            try {
+                mContactChat.sendMessage(message);
+            } catch (XMPPException e) {
+                e.printStackTrace();
+                Toast.makeText(this, getString(R.string.msg_send_message_fail), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void dispatchData(List<SingleComunicationDetailEntry> data) {
