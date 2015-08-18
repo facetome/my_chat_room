@@ -1,6 +1,10 @@
 package com.basic.chat_room.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +14,19 @@ import android.widget.Toast;
 
 import com.basic.chat_room.Entry.SingleComunicationDetailEntry;
 import com.basic.chat_room.R;
+import com.basic.chat_room.utils.Constants;
+import com.j256.ormlite.field.DatabaseField;
 
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by acer on 2015/7/20.
  */
 public class ComunicationAdapter extends BaseAdapter {
+
     private List<SingleComunicationDetailEntry> mData;
     private Context mContext;
 
@@ -82,7 +91,20 @@ public class ComunicationAdapter extends BaseAdapter {
             }
         }
 
-        holder.mMessage.setText(mData.get(position).getMessage());
+        //将message进行转换为表情
+        String message = mData.get(position).getMessage();
+        Pattern pattern = Pattern.compile("\\[exp[0-9][0-9]?\\]");
+        Matcher matcher = pattern.matcher(message);
+        SpannableString span = new SpannableString(message);
+        while (matcher.find()) {
+            Drawable drawable = mContext.getResources().getDrawable(Constants
+                    .getExpressionId(matcher.group()));
+            drawable.setBounds(0, 0, 40, 40);
+            span.setSpan(new ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM), matcher.start(), matcher
+                    .end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        }
+        holder.mMessage.setText(span);
         return convertView;
     }
 
@@ -99,4 +121,5 @@ public class ComunicationAdapter extends BaseAdapter {
         }
 
     }
+
 }

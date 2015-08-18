@@ -3,12 +3,21 @@ package com.basic.chat_room.ui;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,8 +26,10 @@ import com.basic.chat_room.Loader.ComunicationLoader;
 import com.basic.chat_room.Loader.ComunicationSaver;
 import com.basic.chat_room.R;
 import com.basic.chat_room.adapter.ComunicationAdapter;
+import com.basic.chat_room.utils.Constants;
 import com.basic.chat_room.utils.PreferenceUtil;
 import com.basic.chat_room.utils.Uitity;
+import com.basic.chat_room.view.ExpressionGridView;
 import com.basic.chat_room.view.LocalActionBar;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -36,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 聊天室界面基类.
@@ -62,6 +75,8 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
     private EditText mInput;
     private Button mSendMsg;
+    private ImageView mExpressionIcon;
+    private ExpressionGridView mGridView;
 
 
     @Override
@@ -111,7 +126,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mLoaderManger.initLoader(LOAER_ID, getPullLoadBundle(), this);
 
         // 初始化聊天室
-        mContactChat = Uitity.getFriendChat(this, mComunicationId);
+     //   mContactChat = Uitity.getFriendChat(this, mComunicationId);
     }
 
     private void initActionBar() {
@@ -121,9 +136,11 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
 
     private void initView() {
+        mExpressionIcon = (ImageView) findViewById(R.id.expression_icon);
         mInput = (EditText) findViewById(R.id.input_edit);
         mSendMsg = (Button) findViewById(R.id.send_btn);
         mSendMsg.setOnClickListener(this);
+        mExpressionIcon.setOnClickListener(this);
         mPullListView = (PullToRefreshListView) findViewById(R.id.communication_listview);
         mPullListView.setMode(Mode.PULL_FROM_START);  //只能进行下拉刷新，不存在上拉刷新.
         ILoadingLayout pullDownLayout = mPullListView.getLoadingLayoutProxy(true, false);
@@ -150,17 +167,29 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
 
     @Override
     public void onClick(View v) {
-        String message = mInput.getEditableText().toString();
-        if (!TextUtils.isEmpty(message)) {
-            sendMessage(message);
-            mInput.setText("");
-        } else {
-            Toast.makeText(this, getString(R.string.msg_no_message), Toast.LENGTH_SHORT).show();
+        switch (v.getId()){
+            case R.id.send_btn:
+                String message = mInput.getEditableText().toString();
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                if (!TextUtils.isEmpty(message)) {
+                    sendMessage(message);
+                    mInput.setText("");
+                } else {
+                    Toast.makeText(this, getString(R.string.msg_no_message), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.expression_icon:
+                showExpressionWindow();
+                break;
+            default:
+                break;
         }
+
     }
 
     //发送消息
     private void sendMessage(String message) {
+
         mEntry = new SingleComunicationDetailEntry();
         mEntry.setContact(mComunicationId);
         mEntry.setDataPosition(SingleComunicationDetailEntry.DATA_RIGHT);
@@ -168,14 +197,14 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
         mEntry.setTimeStamp(System.currentTimeMillis());
         mEntry.setUserName(PreferenceUtil.getLoginUsername(this));
         mLoaderManger.restartLoader(SAVER_ID, new Bundle(), this);
-        if (mContactChat != null) {
-            try {
-                mContactChat.sendMessage(message);
-            } catch (XMPPException e) {
-                e.printStackTrace();
-                Toast.makeText(this, getString(R.string.msg_send_message_fail), Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (mContactChat != null) {
+//            try {
+//                mContactChat.sendMessage(message);
+//            } catch (XMPPException e) {
+//                e.printStackTrace();
+//                Toast.makeText(this, getString(R.string.msg_send_message_fail), Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 
     private void dispatchData(List<SingleComunicationDetailEntry> data) {
@@ -215,7 +244,7 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
     private Bundle getSendLoadBundle(){
         Bundle bundle = new Bundle();
         bundle.putString(KEY_COMUNICATION_ID, mComunicationId);
-        bundle.putLong(COMUNICATION_COUNT, COMUNICATION_PAGE_SIZE );
+        bundle.putLong(COMUNICATION_COUNT, COMUNICATION_PAGE_SIZE);
         return bundle;
     }
 
@@ -246,5 +275,48 @@ public class BaseComunicationActivity extends BaseActivity implements LoaderCall
       return 0L;
     }
 
+    private void showExpressionWindow() {
+        mGridView = new ExpressionGridView(this);
+        mGridView.setGridItemOnclickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mInput.requestFocus();
+                mInput.setFocusable(true);
 
+                int resource = (int) parent.getItemAtPosition(position);
+                String expression = Constants.getExpression(resource);
+                String message = mInput.getEditableText().toString();
+                StringBuffer buffer = new StringBuffer(message);
+                buffer.insert(mInput.getSelectionStart(), expression);
+
+                //进行正则表达式的匹配
+                String regex = "\\[exp[0-9][0-9]?\\]";// "\"也需要进行转义
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(buffer.toString());
+                SpannableString span = new SpannableString(buffer.toString());
+
+                while (matcher.find()) {
+                    Drawable drawable = getResources().getDrawable(Constants.getExpressionId
+                            (matcher.group()));
+                    drawable.setBounds(0, 0, 40, 40); //这里必须要设置，否则图片不能显示出来
+                    span.setSpan(new ImageSpan(drawable), matcher.start(), matcher.end(),
+                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                }
+                mInput.setText(span);
+                mInput.setSelection(span.length());
+                mGridView.dismiss();
+            }
+        });
+        mGridView.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mGridView.isShowing()) {
+            mGridView.dismiss();
+        } else{
+            super.onBackPressed();
+        }
+
+    }
 }

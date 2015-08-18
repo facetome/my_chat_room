@@ -3,12 +3,13 @@ package com.basic.chat_room.view;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
-import android.util.Ldog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ public class ExpressionGridView extends PopupWindow{
     private View mContentView;
     private int mScreenWidth;
     private int mScreenHeight;
+    private GridView mGridView;
     public ExpressionGridView(Context context){
         mContext = context;
         initScreen();
@@ -37,20 +39,25 @@ public class ExpressionGridView extends PopupWindow{
     private void initContentView(){
         setFocusable(true);
         setWidth(mScreenWidth);
-        setOutsideTouchable(false);
+        setOutsideTouchable(true);
         setHeight(mScreenHeight);
         setTouchable(true);
+        setBackgroundDrawable(new BitmapDrawable()); //这句话必须加，否则不能响应点击返回按钮
         mContentView = LayoutInflater.from(mContext).inflate(R.layout.expression_gridview, null);
-        GridView gridView = (GridView) mContentView.findViewById(R.id.expression_grid);
-        gridView.setCacheColorHint(Color.TRANSPARENT);
-        gridView.setAdapter(new gridAdapter());
+        mGridView = (GridView) mContentView.findViewById(R.id.expression_grid);
+        mGridView.setCacheColorHint(Color.TRANSPARENT);
+        mGridView.setAdapter(new gridAdapter());
         setContentView(mContentView);
-        showAtLocation(mContentView, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL,
-                0, 0);
     }
 
     public void show(){
         showAtLocation(mContentView, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+
+    public void setGridItemOnclickListener(OnItemClickListener listener){
+        if(listener != null){
+            mGridView.setOnItemClickListener(listener);
+        }
     }
 
 

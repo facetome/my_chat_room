@@ -21,11 +21,19 @@
         android:orientation="horizontal"
         android:padding="5dp"
         android:background="@drawable/grey_rounder_rectangle">
+        <ImageView
+            android:id="@+id/expression_icon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/icon_pic"
+            android:layout_gravity="center_vertical"/>
         <EditText
             android:id="@+id/input_edit"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"/>
         <Button
             android:id="@+id/send_btn"
             android:layout_width="wrap_content"

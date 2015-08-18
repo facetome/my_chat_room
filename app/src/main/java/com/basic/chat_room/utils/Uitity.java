@@ -3,6 +3,7 @@ package com.basic.chat_room.utils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.text.SpannableString;
 
 import com.basic.chat_room.R;
 
@@ -78,4 +79,6 @@ public final class Uitity {
             return chat;
         }
     }
+
+
 }
