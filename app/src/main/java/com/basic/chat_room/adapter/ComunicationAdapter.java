@@ -27,7 +27,8 @@ import java.util.regex.Pattern;
  */
 public class ComunicationAdapter extends BaseAdapter {
 
-    private List<SingleComunicationDetailEntry> mData;
+   
+   private List<SingleComunicationDetailEntry> mData;
     private Context mContext;
 
     public ComunicationAdapter(Context context){
